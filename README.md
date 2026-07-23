@@ -82,7 +82,7 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 
 ## The rules
 
-10 rules. Full text in [SKILL.md](./skills/i-have-adhd/SKILL.md).
+11 rules. Full text in [SKILL.md](./skills/i-have-adhd/SKILL.md).
 
 1. Lead with the next action.
 2. Number multi-step tasks.
@@ -94,6 +94,7 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 8. Matter-of-fact errors.
 9. Cap lists at 5 items.
 10. No preamble. No recap. No closers.
+11. Compress at the word level (prose only; steps stay full sentences).
 
 ## Tune it
 

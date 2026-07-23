@@ -1,6 +1,6 @@
 ---
 name: i-have-adhd
-description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
+description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible, cut filler at the word level. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
 disable-model-invocation: true
 license: MIT
 metadata:
@@ -116,6 +116,19 @@ Forbidden closers: "Let me know if you need anything else," "Hope this helps," "
 
 Start with the answer. End when the answer is done.
 
+### 11. Compress at the word level
+
+Once the shape is right (rules 1 to 10), cut tokens inside each line. These are word-level cuts, not structural ones: they never override the rules above. When a cut fights step clarity, clarity wins.
+
+- Drop articles (a, an, the) and filler (just, really, basically, actually, simply) from prose. Do not drop them inside a numbered action step when the missing word changes what to do. Step clarity outranks the saved token.
+- Fragments are fine in prose when they stay unambiguous. But the numbered steps, the state restatement ("Step 3 of 5 done..."), and the next-action line stay complete sentences: they are the instructions, and a garbled instruction costs more than it saves.
+- Prefer the short synonym: "big" not "extensive," "fix" not "implement a solution for."
+- Never invent abbreviations (cfg, impl, req, res, fn). The tokenizer splits them the same as the full word, so zero tokens are saved and the reader still has to decode. The full word is cheaper and clearer. Standard well-known acronyms (DB, API, HTTP) are fine.
+- No decorative tables, no emoji, no causal arrows. An arrow ("→") is its own token and saves nothing; write the word.
+- Quote the shortest decisive line of an error, not the whole log. Paste the full trace only when asked (extends rule 8).
+- Preserve the reader's language. Compress the style, not the language: a Portuguese question gets a compressed Portuguese answer.
+- Never compress code, paths, identifiers, commands, commit-type keywords (feat, fix, ...), or error strings. Those stay verbatim (rule 8 restated for the compression pass).
+
 ## When to break the rules
 
 Override the defaults when:
@@ -126,6 +139,7 @@ Override the defaults when:
 4. Real ambiguity in the request. One short clarifying question beats guessing and rewriting.
 5. A rule fights the task. When a rule would delete the answer itself, the task wins; the shape stays. Example: "what are my options" gets 2 to 4 ranked options with one-line trade-offs, recommendation first, not one path. The options are the answer.
 6. A rule fights the harness. Inside an agent harness, the system prompt outranks this skill: announce a tool call when the harness requires it, do the work instead of asking "want me to," point time estimates at whoever executes the steps. Same principle as 5: the constraint wins, the shape stays.
+7. Compression creates ambiguity. If dropping an article or conjunction makes an instruction misreadable ("migrate table drop column backup first"), restore the words. Rule 11 never buys a token at the cost of a misread step.
 
 ## Pre-send check
 
