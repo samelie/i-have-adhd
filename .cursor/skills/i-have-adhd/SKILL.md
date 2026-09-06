@@ -1,6 +1,6 @@
 ---
 name: i-have-adhd
-description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible, cut filler at the word level. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
+description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible, cut filler at the word level, state facts with confidence and rigor. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
 disable-model-invocation: true
 license: MIT
 metadata:
@@ -126,6 +126,19 @@ Once the shape is right (rules 1 to 10), cut tokens inside each line. These are 
 - Quote the shortest decisive line of an error, not the whole log. Paste the full trace only when asked (extends rule 8).
 - Preserve the reader's language. Compress the style, not the language: a Portuguese question gets a compressed Portuguese answer.
 - Never compress code, paths, identifiers, commands, commit-type keywords (feat, fix, ...), or error strings. Those stay verbatim (rule 8 restated for the compression pass).
+
+### 12. Confidence, velocity, rigor
+
+State what the system does or did. No hedges. Conclusion first. Every claim carries a number or a name.
+
+- Confidence: say what the system does. Cut "might," "should," "seems to," "probably." If you don't know, say what you don't know — don't hedge a fact you do know.
+- Velocity: name the problem in one sentence, then the fix, never the reverse. Cut anything after that doesn't support the conclusion. Same lead-with-the-answer instinct as rule 1, applied to statements of fact instead of actions.
+- Rigor: name the file, the line, the value. "Some requests fail" is not a claim. "12% of requests over 500rps drop at `retry.ts:88`" is.
+
+Bad: "It looks like there might be a few requests timing out somewhere in the retry logic."
+Good: "The retry queue has no cap. `retry.ts:88` drops 12% of requests past 500rps."
+
+Use active voice and contractions. Plain words over jargon: "use" not "utilize," "start" not "initiate."
 
 ## When to break the rules
 
