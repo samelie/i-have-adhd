@@ -1,15 +1,19 @@
 # SessionStart hook fallback for Windows PowerShell. Injects the full
-# i-have-adhd ruleset when the user has opted in by creating
-# $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
+# i-have-adhd ruleset when the user has opted in through the active runtime's
+# config directory.
 # Never blocks session start: any failure exits 0.
 
 try {
-  $claudeDir = if ($env:CLAUDE_CONFIG_DIR) {
+  $configDir = if ($env:PLUGIN_ROOT -and $env:CODEX_HOME) {
+    $env:CODEX_HOME
+  } elseif ($env:PLUGIN_ROOT) {
+    Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex"
+  } elseif ($env:CLAUDE_CONFIG_DIR) {
     $env:CLAUDE_CONFIG_DIR
   } else {
     Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"
   }
-  $flagPath = Join-Path $claudeDir ".i-have-adhd-always"
+  $flagPath = Join-Path $configDir ".i-have-adhd-always"
 
   if (-not (Test-Path -LiteralPath $flagPath -PathType Leaf)) {
     exit 0

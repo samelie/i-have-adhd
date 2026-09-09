@@ -17,8 +17,10 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.plugin_root = Path(self.temp_dir.name) / "plugin with spaces"
         shutil.copytree(ROOT / "hooks", self.plugin_root / "hooks")
         shutil.copytree(ROOT / "skills", self.plugin_root / "skills")
-        self.config_dir = Path(self.temp_dir.name) / "claude config"
-        self.config_dir.mkdir()
+        self.claude_config_dir = Path(self.temp_dir.name) / "claude config"
+        self.claude_config_dir.mkdir()
+        self.codex_home = Path(self.temp_dir.name) / "codex home"
+        self.codex_home.mkdir()
 
     def runtimes(self):
         runtimes = []
@@ -44,7 +46,9 @@ class AlwaysOnHookTest(unittest.TestCase):
 
     def run_hook(self, command):
         env = os.environ.copy()
-        env["CLAUDE_CONFIG_DIR"] = str(self.config_dir)
+        env.pop("PLUGIN_ROOT", None)
+        env.pop("CODEX_HOME", None)
+        env["CLAUDE_CONFIG_DIR"] = str(self.claude_config_dir)
         return subprocess.run(
             [str(part) for part in command],
             check=False,
@@ -57,7 +61,8 @@ class AlwaysOnHookTest(unittest.TestCase):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
         env = os.environ.copy()
-        env["CLAUDE_CONFIG_DIR"] = str(self.config_dir)
+        env["CLAUDE_CONFIG_DIR"] = str(self.claude_config_dir)
+        env["CODEX_HOME"] = str(self.codex_home)
         plugin_root = plugin_root or self.plugin_root
         env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
         env["PLUGIN_ROOT"] = str(plugin_root)
@@ -98,7 +103,7 @@ class AlwaysOnHookTest(unittest.TestCase):
     def test_runtimes_strip_frontmatter_with_trailing_whitespace(self):
         skill_path = self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md"
         skill_path.write_text("---   \nname: fixture\n--- \t\nFixture body.\n")
-        (self.config_dir / ".i-have-adhd-always").touch()
+        (self.claude_config_dir / ".i-have-adhd-always").touch()
         outputs = {}
 
         for name, command in self.runtimes():
@@ -119,7 +124,7 @@ class AlwaysOnHookTest(unittest.TestCase):
         # below" followed by nothing.
         skill_path = self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md"
         skill_path.write_text("---\nname: fixture\nFixture body, fence never closed.\n")
-        (self.config_dir / ".i-have-adhd-always").touch()
+        (self.claude_config_dir / ".i-have-adhd-always").touch()
         outputs = {}
 
         for name, command in self.runtimes():
@@ -134,7 +139,7 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertEqual(1, len(set(outputs.values())))
 
     def test_codex_command_runs_the_hook_instead_of_parsing_session_json(self):
-        (self.config_dir / ".i-have-adhd-always").touch()
+        (self.codex_home / ".i-have-adhd-always").touch()
 
         result = self.run_codex_hook()
 
@@ -143,6 +148,15 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertIn("ADHD MODE ACTIVE (always-on)", result.stdout)
 
     def test_codex_command_is_silent_without_opt_in_flag(self):
+        result = self.run_codex_hook()
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("", result.stderr)
+        self.assertEqual("", result.stdout)
+
+    def test_codex_command_ignores_claude_opt_in_flag(self):
+        (self.claude_config_dir / ".i-have-adhd-always").touch()
+
         result = self.run_codex_hook()
 
         self.assertEqual(0, result.returncode, result.stderr)

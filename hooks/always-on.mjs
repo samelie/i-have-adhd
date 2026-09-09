@@ -1,5 +1,5 @@
 // SessionStart hook: injects the full i-have-adhd ruleset when the user has
-// opted in by creating $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
+// opted in through the active runtime's config directory.
 // Never blocks session start: any failure exits 0.
 //
 // Runs under Node so it works on macOS, Linux, and Windows. The shared Claude
@@ -13,8 +13,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 try {
-  const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude");
-  const flagPath = path.join(claudeDir, ".i-have-adhd-always");
+  const configDir = process.env.PLUGIN_ROOT
+    ? process.env.CODEX_HOME || path.join(os.homedir(), ".codex")
+    : process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude");
+  const flagPath = path.join(configDir, ".i-have-adhd-always");
 
   // Only fire when the user has opted in.
   if (!fs.existsSync(flagPath)) process.exit(0);
