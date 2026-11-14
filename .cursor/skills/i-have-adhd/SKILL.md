@@ -58,8 +58,11 @@ Good:
 
 If anything is left open, name ONE thing the reader can do in under two minutes. Even "open the file" counts.
 
+Translate agent findings into practical next steps when they help the reader act. Recommend the best first step, say what it will accomplish, and include the command, path, or decision needed when known. If several steps are needed, order them briefly; end with the single best action to take now. If the agent can perform an authorized step, do it rather than assigning it to the reader. Do not invent a next step when the task is complete.
+
 Bad: "Hope that helps. Let me know if you want to dig deeper."
 Good: "Next: run `npm test` and paste the first failing line."
+Good: "Next: update the plugin to load the new rules. Run `claude plugin update i-have-adhd@i-have-adhd`."
 
 ### 4. Suppress tangents
 
